@@ -1,0 +1,2646 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema MRA — Gestión SAP</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+:root {
+  --bg: #f8fafc;
+  --white: #ffffff;
+  --surface: #f1f5f9;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --primary: #0284c7; /* Sky blue corporativo */
+  --primary-dark: #0369a1;
+  --primary-light: #f0f9ff;
+  --primary-hover: #0369a1;
+  --accent: #10b981; /* Verde Metro de Medellín */
+  --accent-light: #ecfdf5;
+  --warning: #f59e0b;
+  --warning-light: #fffbeb;
+  --danger: #ef4444;
+  --danger-light: #fef2f2;
+  --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --shadow: 0 4px 6px -1px rgba(0,0,0,0.05),0 2px 4px -2px rgba(0,0,0,0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08),0 4px 6px -4px rgba(0,0,0,0.08);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1),0 8px 10px -6px rgba(0,0,0,0.1);
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  /* sidebar dark (same in both themes) */
+  --sb-bg: #0f172a;
+  --sb-border: #1e293b;
+}
+
+/* ===== DARK THEME ===== */
+body.dark {
+  --bg: #0d1117;
+  --white: #161b22;
+  --surface: #1c2128;
+  --border: #30363d;
+  --border-strong: #484f58;
+  --text: #e6edf3;
+  --text-secondary: #b1bac4;
+  --text-muted: #8b949e;
+  --primary: #388bfd;
+  --primary-dark: #1f6feb;
+  --primary-light: #1c2d3f;
+  --primary-hover: #1f6feb;
+  --accent: #3fb950;
+  --accent-light: #12261e;
+  --warning: #d29922;
+  --warning-light: #272115;
+  --danger: #f85149;
+  --danger-light: #2d1117;
+  --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.3);
+  --shadow: 0 4px 6px -1px rgba(0,0,0,0.3),0 2px 4px -2px rgba(0,0,0,0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.4),0 4px 6px -4px rgba(0,0,0,0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.5),0 8px 10px -6px rgba(0,0,0,0.4);
+}
+body.dark .sidebar { background:#010409; border-right-color:#21262d; }
+body.dark .sidebar-footer { background:#010409; }
+body.dark .nav-item:hover { background:rgba(255,255,255,0.06); }
+body.dark .nav-item.active { background:rgba(56,139,253,0.12); }
+body.dark .topbar { background:var(--white); border-bottom-color:var(--border); }
+body.dark thead tr { background:var(--surface); }
+body.dark tr:hover td { background:#1c2128; }
+body.dark input, body.dark select, body.dark textarea { background:var(--surface); color:var(--text); border-color:var(--border-strong); }
+body.dark .card { background:var(--white); border-color:var(--border); }
+body.dark .card-header { background:var(--surface); }
+body.dark .modal { background:var(--white); }
+body.dark .modal-header { background:var(--surface); }
+body.dark .modal-footer { background:var(--surface); }
+body.dark .confirm-box { background:var(--white); }
+body.dark .btn-secondary { background:var(--surface); color:var(--text-secondary); border-color:var(--border-strong); }
+body.dark .btn-secondary:hover { background:var(--primary-light); color:var(--primary); border-color:var(--primary); }
+body.dark .btn-ghost { color:var(--text-secondary); }
+body.dark .btn-ghost:hover { background:var(--surface); }
+body.dark .btn-danger { background:var(--surface); }
+body.dark .stat { background:var(--white); border-color:var(--border); }
+body.dark .stat:hover { box-shadow:var(--shadow); }
+body.dark .stat-icon.blue { background:var(--primary-light); }
+body.dark .stat-icon.green { background:var(--accent-light); }
+body.dark .stat-icon.amber { background:var(--warning-light); }
+body.dark .stat-icon.violet { background:#1e1030; }
+body.dark .badge-blue { background:var(--primary-light); color:#79c0ff; }
+body.dark .badge-green { background:var(--accent-light); color:#56d364; }
+body.dark .badge-amber { background:var(--warning-light); color:#e3b341; }
+body.dark .badge-red { background:var(--danger-light); color:#f85149; }
+body.dark .badge-gray { background:var(--surface); color:var(--text-muted); border-color:var(--border); }
+body.dark .table-wrap { border-color:var(--border); background:var(--white); }
+body.dark .result-panel { background:var(--white); border-color:var(--border); }
+body.dark .rp-cell { border-color:var(--border); }
+body.dark .rp-actions { background:var(--surface); border-color:var(--border); }
+body.dark .autocomplete-list { background:var(--white); border-color:var(--border); }
+body.dark .ac-item:hover,.ac-item.selected { background:var(--primary-light); }
+body.dark .tabs { border-color:var(--border); }
+body.dark #conv-output { background:#010409; border-color:#21262d; }
+
+/* Dark theme toggle button */
+.dark-toggle {
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:9999px;
+  padding:5px 14px 5px 10px;
+  cursor:pointer;
+  transition:var(--transition);
+  font-size:12px;
+  font-weight:600;
+  color:var(--text-secondary);
+  font-family:'Inter',sans-serif;
+}
+.dark-toggle:hover { border-color:var(--primary); color:var(--primary); background:var(--primary-light); }
+.toggle-track {
+  width:32px; height:18px;
+  background:var(--border-strong);
+  border-radius:9999px;
+  position:relative;
+  transition:background 0.2s;
+  flex-shrink:0;
+}
+.toggle-track.on { background:var(--primary); }
+.toggle-thumb {
+  position:absolute;
+  top:2px; left:2px;
+  width:14px; height:14px;
+  background:#fff;
+  border-radius:50%;
+  transition:transform 0.2s;
+  box-shadow:0 1px 3px rgba(0,0,0,0.3);
+}
+.toggle-track.on .toggle-thumb { transform:translateX(14px); }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* SIDEBAR */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 250px;
+  background: #0f172a; /* Slate oscuro corporativo */
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  border-right: 1px solid #1e293b;
+  box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+}
+.sidebar-logo {
+  padding: 24px 20px;
+  border-bottom: 1px solid #1e293b;
+}
+.sidebar-logo .logo-mark {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+.logo-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+.logo-sub {
+  font-size: 10px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 2px;
+  font-weight: 600;
+}
+
+.sidebar-nav {
+  padding: 16px 12px;
+  flex: 1;
+  overflow-y: auto;
+}
+.nav-section-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 12px 16px 6px;
+}
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+  color: #94a3b8;
+  font-size: 13.5px;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: #f1f5f9;
+}
+.nav-item.active {
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+  font-weight: 600;
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 15%;
+  height: 70%;
+  width: 4px;
+  background: var(--accent); /* Verde Metro */
+  border-radius: 0 4px 4px 0;
+}
+.nav-item .nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: inherit;
+}
+.nav-item .nav-badge {
+  margin-left: auto;
+  background: #1e293b;
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid #334155;
+}
+.nav-item.active .nav-badge {
+  background: var(--primary-dark);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid #1e293b;
+  background: #090d16;
+}
+.sidebar-footer .version {
+  font-size: 11px;
+  color: #475569;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* MAIN */
+.main {
+  margin-left: 250px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* TOPBAR */
+.topbar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: var(--shadow-sm);
+}
+.topbar-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+.topbar-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-left: auto;
+  font-weight: 500;
+}
+
+/* PAGE */
+.page {
+  display: none;
+  padding: 32px;
+  flex: 1;
+}
+.page.active {
+  display: block;
+}
+
+/* PAGE HEADER */
+.page-header {
+  margin-bottom: 28px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.page-header-left h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.page-header-left p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* CARDS */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.card-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg);
+}
+.card-header h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+.card-header .ch-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+.card-body {
+  padding: 24px;
+}
+
+/* STATS */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.stat {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: var(--transition);
+}
+.stat:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.stat-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.stat-icon.blue { background: var(--primary-light); color: var(--primary); }
+.stat-icon.green { background: var(--accent-light); color: var(--accent); }
+.stat-icon.amber { background: var(--warning-light); color: var(--warning); }
+.stat-icon.violet { background: #f5f3ff; color: #7c3aed; }
+
+.stat-num {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.stat-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* FORM */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+.form-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.form-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-group.full { grid-column: 1 / -1; }
+label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+input, select, textarea {
+  background: var(--white);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 13.5px;
+  padding: 10px 14px;
+  transition: var(--transition);
+  appearance: none;
+}
+input::placeholder { color: var(--text-muted); }
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.6;
+}
+.select-wrap { position: relative; }
+.select-wrap::after {
+  content: '';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 6px;
+  background-color: var(--text-muted);
+  clip-path: polygon(100% 0, 0 0, 50% 100%);
+  pointer-events: none;
+}
+.select-wrap select {
+  width: 100%;
+  padding-right: 36px;
+}
+.input-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+/* AUTOCOMPLETE */
+.autocomplete-wrap { position: relative; }
+.autocomplete-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-xl);
+  max-height: 280px;
+  overflow-y: auto;
+  display: none;
+  animation: autocompleteFade 0.15s ease-out;
+}
+@keyframes autocompleteFade {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.autocomplete-list.open { display: block; }
+.ac-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+.ac-item:last-child { border-bottom: none; }
+.ac-item:hover, .ac-item.selected {
+  background: var(--primary-light);
+}
+.ac-item .ac-main { font-weight: 600; color: var(--text); }
+.ac-item .ac-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.ac-empty { padding: 16px; color: var(--text-muted); font-size: 13px; text-align: center; }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+}
+.btn-primary:hover {
+  background: var(--primary-dark);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+  transform: translateY(-1px);
+}
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  background: var(--white);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-strong);
+}
+.btn-secondary:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.btn-success {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+.btn-success:hover {
+  background: #059669;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background: var(--white);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.btn-danger:hover {
+  background: var(--danger-light);
+  border-color: var(--danger);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+}
+
+.btn-ghost {
+  background: none;
+  color: var(--text-secondary);
+  border: none;
+  padding: 6px 12px;
+}
+.btn-ghost:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+.btn-icon {
+  padding: 8px;
+  width: 32px;
+  height: 32px;
+}
+
+/* BADGES */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.badge-blue { background: var(--primary-light); color: var(--primary-dark); }
+.badge-green { background: var(--accent-light); color: #065f46; }
+.badge-amber { background: var(--warning-light); color: #92400e; }
+.badge-red { background: var(--danger-light); color: var(--danger); }
+.badge-gray {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid var(--border);
+}
+
+/* TABLE */
+.table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  background: var(--white);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+thead tr {
+  background: var(--bg);
+}
+th {
+  padding: 14px 18px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+td {
+  padding: 14px 18px;
+  font-size: 13.5px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  color: var(--text-secondary);
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #f8fafc; }
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* SEARCH BAR */
+.search-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.search-input-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 240px;
+}
+.search-input-wrap input {
+  padding-left: 42px;
+  width: 100%;
+}
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+.filter-select { width: 190px; }
+
+/* RESULT PANEL — Buscador */
+.result-panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  display: none;
+  margin-top: 28px;
+  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.result-panel.show { display: block; }
+
+.rp-header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  padding: 24px 32px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #1e293b;
+}
+.rp-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+.rp-header p {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 4px;
+  font-weight: 500;
+}
+.rp-badges {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.rp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  background: var(--white);
+}
+.rp-cell {
+  padding: 16px 24px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.rp-cell:last-child { border-right: none; }
+.rp-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.rp-label svg {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+.rp-value {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+.rp-value.accent { color: var(--primary); }
+.rp-value.mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  background: var(--surface);
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.rp-section {
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--border);
+}
+.rp-section:last-of-type { border-bottom: none; }
+.rp-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rp-section-title::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 14px;
+  background: var(--primary);
+  border-radius: 2px;
+}
+.rp-text-box {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #e2e8f0;
+  font-family: 'JetBrains Mono', monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.rp-actions {
+  padding: 18px 32px;
+  background: var(--bg);
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--border);
+}
+
+/* DIVIDER */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 24px 0;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.2s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  width: 100%;
+  max-width: 760px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes modalIn {
+  from { transform: scale(0.95) translateY(8px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+.modal-header {
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg);
+}
+.modal-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius);
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+.modal-close:hover {
+  background: var(--border);
+  color: var(--text);
+}
+.modal-body {
+  padding: 28px;
+}
+.modal-footer {
+  padding: 18px 28px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  background: var(--bg);
+}
+
+/* TOAST */
+#toast {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 1000;
+  background: #0f172a;
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+#toast.success {
+  background: #065f46;
+  border: 1px solid #047857;
+}
+#toast.error {
+  background: #991b1b;
+  border: 1px solid #b91c1c;
+}
+
+/* EMPTY */
+.empty-state {
+  text-align: center;
+  padding: 56px 24px;
+  color: var(--text-muted);
+}
+.empty-state .es-icon {
+  margin-bottom: 16px;
+  color: var(--text-muted);
+  opacity: 0.4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.empty-state p {
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+}
+.tab-btn {
+  padding: 12px 20px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: var(--transition);
+}
+.tab-btn:hover {
+  color: var(--text);
+}
+.tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  font-weight: 600;
+}
+
+/* CONFIRM DIALOG */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease-out;
+}
+.confirm-overlay.open { display: flex; }
+.confirm-box {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: var(--shadow-xl);
+  text-align: center;
+  animation: modalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.confirm-box h4 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.confirm-box p {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* SVG ICON GLOBAL CLASSES */
+.icon {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
+  flex-shrink: 0;
+}
+.icon-sm {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2;
+}
+.icon-lg {
+  width: 24px;
+  height: 24px;
+}
+.icon-btn {
+  width: 16px;
+  height: 16px;
+}
+
+@media(max-width:900px){
+  .sidebar { width: 80px; }
+  .sidebar .logo-text, .sidebar .logo-sub, .sidebar .nav-section-label, .sidebar .nav-item span:not(.nav-icon), .sidebar .nav-badge, .sidebar-footer .version { display: none; }
+  .sidebar-logo { padding: 16px 12px; }
+  .logo-icon { width: 40px; height: 40px; }
+  .nav-item { padding: 12px; justify-content: center; }
+  .main { margin-left: 80px; }
+}
+@media(max-width:700px){
+  .sidebar { transform: translateX(-100%); }
+  .main { margin-left: 0; }
+  .page { padding: 20px; }
+  .topbar { padding: 0 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">
+        <svg class="icon icon-lg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <rect x="4" y="3" width="16" height="14" rx="2" stroke-width="2" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17h6M6 17l-2 4M18 17l2 4M8 7h8M8 11h8" />
+        </svg>
+      </div>
+      <div>
+        <div class="logo-text">Sistema SAP</div>
+        <div class="logo-sub">Gestión de Fallas</div>
+      </div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Principal</div>
+    <div class="nav-item active" onclick="showPage('buscador',this)">
+      <span class="nav-icon">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </span>
+      <span>Buscador de Fallas</span>
+    </div>
+    <div class="nav-section-label">Administración</div>
+    <div class="nav-item" onclick="showPage('maquinas',this)">
+      <span class="nav-icon">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      </span>
+      <span>Máquinas</span>
+      <span class="nav-badge" id="badge-maq">—</span>
+    </div>
+    <div class="nav-item" onclick="showPage('catalogo',this)">
+      <span class="nav-icon">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+      </span>
+      <span>Catálogo de Fallas</span>
+      <span class="nav-badge" id="badge-cat">—</span>
+    </div>
+    <div class="nav-item" onclick="showPage('resumen',this)">
+      <span class="nav-icon">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h8M4 18h8" />
+        </svg>
+      </span>
+      <span>Resumen BD</span>
+    </div>
+    <div class="nav-section-label">Herramientas</div>
+    <div class="nav-item" onclick="showPage('convertidor',this)">
+      <span class="nav-icon">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+        </svg>
+      </span>
+      <span>Convertidor</span>
+    </div>
+    <div class="nav-item" onclick="showPage('configuracion',this)">
+      <span class="nav-icon">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </span>
+      <span>Configuración</span>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="version">v2.1 · Metro de Medellín</div>
+    <div class="version" style="margin-top:4px;color:#334155;">App creada por Iván Chima Díaz</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Buscador de Fallas</div>
+    <div class="topbar-sub" id="topbar-date"></div>
+    <button class="dark-toggle" onclick="toggleDark()" id="dark-toggle-btn" title="Cambiar tema">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="dark-icon"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      <div class="toggle-track" id="toggle-track"><div class="toggle-thumb"></div></div>
+      <span id="dark-label">Oscuro</span>
+    </button>
+  </div>
+
+  <!-- ======= BUSCADOR ======= -->
+  <div class="page active" id="page-buscador">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2>Buscador de Fallas</h2>
+        <p>Busca la máquina y la falla de forma independiente para obtener los datos SAP (IW21)</p>
+      </div>
+    </div>
+
+    <!-- SEARCH CARD -->
+    <div class="card" style="margin-bottom:0">
+      <div class="card-header">
+        <span class="ch-icon">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </span>
+        <h3>Búsqueda</h3>
+      </div>
+      <div class="card-body">
+        <div class="form-grid cols-2">
+          <!-- Máquina -->
+          <div class="form-group">
+            <label>Máquina</label>
+            <div class="autocomplete-wrap">
+              <input type="text" id="bus-maquina" placeholder="Escribe nombre, estación, extensión o base..." autocomplete="off"
+                oninput="filterAC('bus-maquina','ac-maquina',maquinas,['nombre','estacion','ext','tecnico'],'maqSelected')"
+                onkeydown="acKeyDown(event,'ac-maquina')"
+                onfocus="showAC('bus-maquina','ac-maquina',maquinas,['nombre','estacion','ext','tecnico'],'maqSelected')">
+              <div class="autocomplete-list" id="ac-maquina"></div>
+            </div>
+            <div class="input-hint" id="maq-hint"></div>
+          </div>
+          <!-- Falla -->
+          <div class="form-group">
+            <label>Falla</label>
+            <div class="autocomplete-wrap">
+              <input type="text" id="bus-falla" placeholder="Escribe la descripción de falla..." autocomplete="off"
+                oninput="filterAC('bus-falla','ac-falla',catalogo,['falla','componente'],'fallaSelected')"
+                onkeydown="acKeyDown(event,'ac-falla')"
+                onfocus="showAC('bus-falla','ac-falla',catalogo,['falla','componente'],'fallaSelected')">
+              <div class="autocomplete-list" id="ac-falla"></div>
+            </div>
+            <div class="input-hint" id="falla-hint"></div>
+          </div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:8px">
+          <button class="btn btn-primary" onclick="buscar()">Buscar</button>
+          <button class="btn btn-secondary" onclick="limpiarBusqueda()">Limpiar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="result-panel" id="result-panel">
+      <div class="rp-header">
+        <div>
+          <h3 id="rp-title">—</h3>
+          <p id="rp-subtitle">Datos para registro en SAP — IW21</p>
+        </div>
+        <div class="rp-badges" id="rp-badges"></div>
+      </div>
+
+      <!-- Datos de la máquina -->
+      <div style="padding:16px 24px 8px;background:var(--bg);border-bottom:1px solid var(--border)">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:0">Información Técnica de la Máquina</div>
+      </div>
+      <div class="rp-grid" id="rp-maq-grid"></div>
+
+      <!-- Datos de la falla -->
+      <div style="padding:16px 24px 8px;background:var(--bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:0">Información Técnica de la Falla</div>
+      </div>
+      <div class="rp-grid" id="rp-falla-grid"></div>
+
+      <div class="rp-section" id="rp-sap-section">
+        <div class="rp-section-title">Datos para SAP (IW21)</div>
+        <div class="rp-text-box" id="rp-datossap">—</div>
+      </div>
+      <div class="rp-section" id="rp-proc-section">
+        <div class="rp-section-title">Procedimiento Recomendado</div>
+        <div class="rp-text-box" id="rp-procedimiento">—</div>
+      </div>
+      <div class="rp-section" id="rp-sitio-section">
+        <div class="rp-section-title">Reporte Atención en Sitio</div>
+        <div class="rp-text-box" id="rp-sitio">—</div>
+      </div>
+
+      <div class="rp-actions">
+        <button class="btn btn-primary btn-sm" onclick="copySAP()">
+          <svg class="icon-btn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m-6 4h10m-5-5H8.25" />
+          </svg>
+          Copiar Datos SAP
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="copyTodo()">
+          <svg class="icon-btn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Copiar Informe Completo
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="limpiarBusqueda()">
+          <svg class="icon-btn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          Limpiar
+        </button>
+      </div>
+  </div>
+  </div>
+
+  <!-- ======= MÁQUINAS ======= -->
+  <div class="page" id="page-maquinas">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2>Máquinas MRA</h2>
+        <p>Inventario completo de máquinas registradas en el sistema</p>
+      </div>
+      <button class="btn btn-primary" onclick="openMaqModal()">
+        <svg class="icon-btn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        Agregar Máquina
+      </button>
+    </div>
+
+    <div class="stats-grid" id="maq-stats"></div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="ch-icon">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        </span>
+        <h3>Listado de Máquinas</h3>
+        <span style="margin-left:auto;font-size:12px;color:var(--text-muted)" id="maq-count-label"></span>
+      </div>
+      <div class="card-body" style="padding:24px">
+        <div class="search-row">
+          <div class="search-input-wrap">
+            <span class="search-icon">
+              <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </span>
+            <input type="text" id="maq-q" placeholder="Buscar por nombre, estación, IP..." oninput="renderMaqTable()">
+          </div>
+          <div class="select-wrap filter-select">
+            <select id="maq-fgen" onchange="renderMaqTable()">
+              <option value="">Todas las generaciones</option>
+              <option value="SEGUNDA GENERACION">2da Generación</option>
+              <option value="TERCERA GENERACION">3ra Generación</option>
+            </select>
+          </div>
+          <div class="select-wrap filter-select">
+            <select id="maq-fbase" onchange="renderMaqTable()">
+              <option value="">Todas las bases</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Máquina</th><th>Generación</th><th>MRA</th>
+                <th>Ext.</th><th>IP Máquina</th><th>IP NVR</th>
+                <th>Estación</th><th>Ubicación</th><th>Línea</th>
+                <th>Técnico</th><th style="width:90px"></th>
+              </tr>
+            </thead>
+            <tbody id="maq-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= CATÁLOGO ======= -->
+  <div class="page" id="page-catalogo">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2>Catálogo de Fallas</h2>
+        <p>Procedimientos de atención remota y en sitio por tipo de falla</p>
+      </div>
+      <button class="btn btn-primary" onclick="openCatModal()">
+        <svg class="icon-btn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        Agregar Falla
+      </button>
+    </div>
+
+    <div class="stats-grid" id="cat-stats"></div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="ch-icon">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+        </span>
+        <h3>Catálogo de Fallas</h3>
+        <span style="margin-left:auto;font-size:12px;color:var(--text-muted)" id="cat-count-label"></span>
+      </div>
+      <div class="card-body" style="padding:24px">
+        <div class="search-row">
+          <div class="search-input-wrap">
+            <span class="search-icon">
+              <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </span>
+            <input type="text" id="cat-q" placeholder="Buscar falla, componente, conjunto..." oninput="renderCatTable()">
+          </div>
+          <div class="select-wrap filter-select">
+            <select id="cat-fgen" onchange="renderCatTable()">
+              <option value="">Todas las generaciones</option>
+              <option value="SEGUNDA GENERACION">2da Generación</option>
+              <option value="TERCERA GENERACION">3ra Generación</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Gen.</th><th>Componente</th><th>Conjunto</th>
+                <th>Falla</th><th>Síntoma</th><th>Causa</th>
+                <th>T1</th><th>T2</th><th>T3</th><th>T4</th>
+                <th style="width:90px"></th>
+              </tr>
+            </thead>
+            <tbody id="cat-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= RESUMEN BD ======= -->
+  <div class="page" id="page-resumen">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2>Resumen Base de Datos</h2>
+        <p>Vista completa de todas las máquinas y fallas registradas en la base de datos</p>
+      </div>
+      <button class="btn btn-secondary" onclick="initResumenPage()">
+        <svg class="icon-btn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Actualizar
+      </button>
+    </div>
+
+    <!-- Stats globales -->
+    <div class="stats-grid" style="margin-bottom:28px">
+      <div class="stat"><div class="stat-icon blue"><svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg></div><div><div class="stat-num" id="res-total-maq">—</div><div class="stat-label">Máquinas en BD</div></div></div>
+      <div class="stat"><div class="stat-icon green"><svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg></div><div><div class="stat-num" id="res-total-cat">—</div><div class="stat-label">Fallas en BD</div></div></div>
+      <div class="stat"><div class="stat-icon amber"><svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg></div><div><div class="stat-num" id="res-total-est">—</div><div class="stat-label">Estaciones</div></div></div>
+      <div class="stat"><div class="stat-icon violet"><svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><div><div class="stat-num" id="res-total-tipos">—</div><div class="stat-label">Tipos de Falla</div></div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs" id="res-tabs">
+      <button class="tab-btn active" onclick="showResTab('maquinas', this)">🖥️ Todas las Máquinas</button>
+      <button class="tab-btn" onclick="showResTab('fallas', this)">⚠️ Todas las Fallas</button>
+    </div>
+
+    <!-- Tab: Máquinas -->
+    <div id="res-tab-maquinas">
+      <div class="card">
+        <div class="card-header">
+          <span class="ch-icon"><svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg></span>
+          <h3>Listado Completo de Máquinas</h3>
+          <span style="margin-left:auto;font-size:12px;color:var(--text-muted)" id="res-maq-count"></span>
+        </div>
+        <div class="card-body" style="padding:24px">
+          <div class="search-row">
+            <div class="search-input-wrap">
+              <span class="search-icon"><svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg></span>
+              <input type="text" id="res-maq-q" placeholder="Buscar máquina, estación, IP..." oninput="renderResMaqTable()">
+            </div>
+            <div class="select-wrap filter-select">
+              <select id="res-maq-fgen" onchange="renderResMaqTable()">
+                <option value="">Todas las generaciones</option>
+                <option value="SEGUNDA GENERACION">2da Generación</option>
+                <option value="TERCERA GENERACION">3ra Generación</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th><th>Máquina</th><th>Generación</th><th>MRA</th>
+                  <th>Ext.</th><th>IP Máquina</th><th>IP NVR</th>
+                  <th>Estación</th><th>Ubicación</th><th>Línea</th><th>Técnico</th>
+                </tr>
+              </thead>
+              <tbody id="res-maq-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Fallas -->
+    <div id="res-tab-fallas" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <span class="ch-icon"><svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg></span>
+          <h3>Listado Completo de Fallas</h3>
+          <span style="margin-left:auto;font-size:12px;color:var(--text-muted)" id="res-cat-count"></span>
+        </div>
+        <div class="card-body" style="padding:24px">
+          <div class="search-row">
+            <div class="search-input-wrap">
+              <span class="search-icon"><svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg></span>
+              <input type="text" id="res-cat-q" placeholder="Buscar falla, componente, causa..." oninput="renderResCatTable()">
+            </div>
+            <div class="select-wrap filter-select">
+              <select id="res-cat-fgen" onchange="renderResCatTable()">
+                <option value="">Todas las generaciones</option>
+                <option value="SEGUNDA GENERACION">2da Generación</option>
+                <option value="TERCERA GENERACION">3ra Generación</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th><th>Gen.</th><th>Componente</th><th>Conjunto</th>
+                  <th>Falla</th><th>Síntoma</th><th>Causa</th>
+                  <th>T1</th><th>T2</th><th>T3</th><th>T4</th>
+                </tr>
+              </thead>
+              <tbody id="res-cat-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= CONVERTIDOR ======= -->
+  <div class="page" id="page-convertidor">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2>Convertidor de Texto</h2>
+        <p>Convierte texto de minúscula a mayúscula y otras transformaciones útiles</p>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+      <!-- Panel izquierdo: Entrada -->
+      <div class="card">
+        <div class="card-header">
+          <span class="ch-icon">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </span>
+          <h3>Texto de Entrada</h3>
+        </div>
+        <div class="card-body">
+          <div class="form-group" style="margin-bottom:16px">
+            <label>Pega o escribe el texto aquí</label>
+            <textarea id="conv-input" style="min-height:200px;font-size:14px;line-height:1.7" placeholder="Escribe o pega el texto que deseas convertir...&#10;&#10;Ejemplo: hola mundo, esto es una prueba de conversión de texto." oninput="convertirTexto()"></textarea>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('conv-input').value='';convertirTexto();"><svg class="icon-btn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg> Limpiar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel derecho: Opciones y Salida -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <!-- Modos -->
+        <div class="card">
+          <div class="card-header">
+            <span class="ch-icon">
+              <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+              </svg>
+            </span>
+            <h3>Tipo de Conversión</h3>
+          </div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <button class="btn btn-primary btn-sm conv-mode-btn" id="btn-mayus" onclick="setConvMode('mayus',this)">
+                <svg class="icon-btn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l4.5 14M19 3l-4.5 14M3 10h7M14 10h7" /></svg>
+                MAYÚSCULAS
+              </button>
+              <button class="btn btn-secondary btn-sm conv-mode-btn" id="btn-minus" onclick="setConvMode('minus',this)">
+                <svg class="icon-btn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l4.5 14M19 3l-4.5 14M3 10h7M14 10h7" /></svg>
+                minúsculas
+              </button>
+              <button class="btn btn-secondary btn-sm conv-mode-btn" id="btn-titulo" onclick="setConvMode('titulo',this)">
+                <svg class="icon-btn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8" /></svg>
+                Título (Cada Palabra)
+              </button>
+              <button class="btn btn-secondary btn-sm conv-mode-btn" id="btn-oracion" onclick="setConvMode('oracion',this)">
+                <svg class="icon-btn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h8" /></svg>
+                Oración (primera letra)
+              </button>
+              <button class="btn btn-secondary btn-sm conv-mode-btn" id="btn-alternado" onclick="setConvMode('alternado',this)" style="grid-column:1/-1">
+                <svg class="icon-btn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m-12 4h8m-8 4h12" /></svg>
+                aLtErNaDo
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resultado -->
+        <div class="card">
+          <div class="card-header">
+            <span class="ch-icon">
+              <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </span>
+            <h3>Resultado</h3>
+            <span style="margin-left:auto;font-size:11px;color:var(--text-muted);font-weight:600" id="conv-chars">0 caracteres</span>
+          </div>
+          <div class="card-body">
+            <div id="conv-output" style="background:#0f172a;border:1px solid #1e293b;border-radius:var(--radius);padding:16px 20px;font-size:13.5px;line-height:1.7;color:#e2e8f0;font-family:'JetBrains Mono',monospace;min-height:120px;white-space:pre-wrap;word-break:break-word;margin-bottom:16px">—</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn-primary btn-sm" onclick="copiarConvertido()">
+                <svg class="icon-btn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                Copiar Resultado
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="pasarAEntrada()">
+                <svg class="icon-btn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" /></svg>
+                Pasar a Entrada
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======= CONFIGURACIÓN ======= -->
+  <div class="page" id="page-configuracion">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2>Configuración</h2>
+        <p>Ajustes del sistema y conexión a Supabase</p>
+      </div>
+      <button class="btn btn-secondary" onclick="loadData()">
+        <svg class="icon-btn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        Recargar Datos
+      </button>
+    </div>
+
+    <!-- CARD: Estado de Conexión -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header">
+        <span class="ch-icon">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+          </svg>
+        </span>
+        <h3>Conexión Supabase (Nube)</h3>
+      </div>
+      <div class="card-body" style="padding:24px">
+        <div class="form-grid cols-2">
+          <div class="form-group full">
+            <label>Supabase URL</label>
+            <input type="text" id="cfg-sb-url" placeholder="https://xxxxxxxxxxxx.supabase.co">
+          </div>
+          <div class="form-group full">
+            <label>Supabase Anon Key</label>
+            <input type="password" id="cfg-sb-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+          </div>
+        </div>
+        <div style="margin-top:24px;display:flex;gap:12px">
+          <button class="btn btn-primary" onclick="saveConfig()">Guardar Configuración</button>
+          <button class="btn btn-secondary" onclick="testSupabase()">Probar Conexión</button>
+        </div>
+        <div id="sb-status" style="margin-top:16px;font-size:13px;font-weight:600;display:none;padding:12px;border-radius:var(--radius);border:1px solid var(--border)"></div>
+      </div>
+    </div>
+
+    <!-- CARD: Setup de Base de Datos -->
+    <div class="card">
+      <div class="card-header" style="background:linear-gradient(135deg,#1e293b,#0f172a)">
+        <span class="ch-icon" style="color:#f59e0b">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+          </svg>
+        </span>
+        <h3 style="color:#fff">Setup Inicial de Base de Datos</h3>
+        <span style="margin-left:auto;background:#f59e0b;color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:9999px;letter-spacing:0.05em">REQUERIDO</span>
+      </div>
+      <div class="card-body" style="padding:24px">
+        <div style="background:#fef9c3;border:1px solid #fde047;border-radius:var(--radius);padding:16px;margin-bottom:20px;display:flex;gap:12px;align-items:flex-start">
+          <span style="font-size:20px;flex-shrink:0">⚠️</span>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#713f12;margin-bottom:4px">Las tablas en Supabase deben crearse con el esquema correcto</div>
+            <div style="font-size:12px;color:#854d0e;line-height:1.6">Si los datos no se muestran, es porque las tablas no existen o tienen columnas con nombres incorrectos. Sigue los pasos a continuación para configurar la base de datos.</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px">
+          <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:var(--radius);padding:16px;text-align:center">
+            <div style="font-size:28px;margin-bottom:8px">1️⃣</div>
+            <div style="font-size:12px;font-weight:700;color:#0369a1;margin-bottom:4px">Abre Supabase</div>
+            <div style="font-size:11px;color:#0369a1">Ve a <strong>supabase.com</strong> → Tu proyecto → <strong>SQL Editor</strong></div>
+          </div>
+          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:var(--radius);padding:16px;text-align:center">
+            <div style="font-size:28px;margin-bottom:8px">2️⃣</div>
+            <div style="font-size:12px;font-weight:700;color:#166534;margin-bottom:4px">Ejecuta el SQL</div>
+            <div style="font-size:11px;color:#166534">Copia el contenido del archivo <strong>setup_supabase.sql</strong> y ejecútalo</div>
+          </div>
+          <div style="background:#fdf4ff;border:1px solid #e9d5ff;border-radius:var(--radius);padding:16px;text-align:center">
+            <div style="font-size:28px;margin-bottom:8px">3️⃣</div>
+            <div style="font-size:12px;font-weight:700;color:#7e22ce;margin-bottom:4px">Recarga la App</div>
+            <div style="font-size:11px;color:#7e22ce">Haz clic en <strong>"Recargar Datos"</strong> arriba o recarga la página (F5)</div>
+          </div>
+        </div>
+
+        <div style="background:#0f172a;border-radius:var(--radius);padding:16px;margin-bottom:20px">
+          <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px">📁 Archivo SQL generado</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#e2e8f0">setup_supabase.sql</div>
+          <div style="font-size:11px;color:#64748b;margin-top:4px">Ubicado en la misma carpeta que esta app — crea las tablas y carga los 40 máquinas y 29 fallas del catálogo.</div>
+        </div>
+
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <a href="https://supabase.com/dashboard/project/iyqydehvlosewgblqpbk/sql/new" target="_blank" class="btn btn-primary">
+            <svg class="icon-btn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+            Abrir SQL Editor en Supabase
+          </a>
+          <button class="btn btn-secondary" onclick="loadData()">
+            <svg class="icon-btn" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Recargar Datos Ahora
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+
+<!-- MODAL MÁQUINA -->
+<div class="modal-overlay" id="modal-maq">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-maq-title">Nueva Máquina</h3>
+      <button class="modal-close" onclick="closeModal('modal-maq')">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid cols-2">
+        <div class="form-group full"><label>Nombre de la Máquina *</label><input type="text" id="mf-nombre" placeholder="Ej: MIM MRA 2 T3" oninput="this.value = this.value.toUpperCase()"></div>
+        <div class="form-group">
+          <label>Tipo de Máquina</label>
+          <div class="select-wrap"><select id="mf-tipo"><option value="SEGUNDA GENERACION">Segunda Generación</option><option value="TERCERA GENERACION">Tercera Generación</option></select></div>
+        </div>
+        <div class="form-group">
+          <label>Tipo MRA</label>
+          <div class="select-wrap"><select id="mf-tipomra"><option>T1</option><option>T2</option><option>T3</option><option>T4</option><option>LSR</option><option>PDV</option></select></div>
+        </div>
+        <div class="form-group"><label>Extensión</label><input type="text" id="mf-ext" placeholder="709" oninput="this.value = this.value.toUpperCase()"></div>
+        <div class="form-group"><label>IP Máquina</label><input type="text" id="mf-ip" placeholder="172.23.47.42"></div>
+        <div class="form-group"><label>IP NVR</label><input type="text" id="mf-ipnvr" placeholder="172.23.4.226"></div>
+        <div class="form-group"><label>Estación</label><input type="text" id="mf-estacion" placeholder="MIRA FLORES" oninput="this.value = this.value.toUpperCase()"></div>
+        <div class="form-group"><label>Ubicación</label><input type="text" id="mf-ubicacion" placeholder="ACCESO UNICO" oninput="this.value = this.value.toUpperCase()"></div>
+        <div class="form-group"><label>Línea</label><input type="text" id="mf-linea" placeholder="M (METRO CABLE)" oninput="this.value = this.value.toUpperCase()"></div>
+        <div class="form-group"><label>Técnico Base</label><input type="text" id="mf-tecnico" placeholder="BASE MIR" oninput="this.value = this.value.toUpperCase()"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-maq')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveMaq()">Guardar Máquina</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FALLA -->
+<div class="modal-overlay" id="modal-cat">
+  <div class="modal" style="max-width:780px">
+    <div class="modal-header">
+      <h3 id="modal-cat-title">Nueva Falla</h3>
+      <button class="modal-close" onclick="closeModal('modal-cat')">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid cols-2">
+        <div class="form-group">
+          <label>Tipo de Máquina</label>
+          <div class="select-wrap"><select id="cf-tipo"><option value="SEGUNDA GENERACION">Segunda Generación</option><option value="TERCERA GENERACION">Tercera Generación</option></select></div>
+        </div>
+        <div class="form-group"><label>Componente</label><input type="text" id="cf-componente" placeholder="Ej: IMPRESORA CUSTOM TG2480H" oninput="this.value = this.value.toUpperCase()"></div>
+        <div class="form-group"><label>Conjunto SAP</label><input type="text" id="cf-conjunto" placeholder="1010407" oninput="this.value = this.value.toUpperCase()"></div>
+        <div class="form-group"><label>Descripción de Falla *</label><input type="text" id="cf-falla" placeholder="NO IMPRIME" oninput="this.value = this.value.toUpperCase()"></div>
+        <div class="form-group full"><label>Reporte Atención Remota (Datos para IW21)</label><textarea id="cf-remota" placeholder="Descripción del procedimiento de atención remota..." oninput="this.value = this.value.toUpperCase()"></textarea></div>
+        <div class="form-group full"><label>Solución Remota Nivel 1 / Procedimiento</label><textarea id="cf-solucion" placeholder="Pasos numerados del procedimiento..." oninput="this.value = this.value.toUpperCase()"></textarea></div>
+        <div class="form-group"><label>Síntoma</label><input type="text" id="cf-sintoma" placeholder="N085 - IMPRIME" oninput="this.value = this.value.toUpperCase()"></div>
+        <div class="form-group"><label>Texto Síntoma</label><input type="text" id="cf-texsintoma" placeholder="NO IMPRIME" oninput="this.value = this.value.toUpperCase()"></div>
+        <div class="form-group full"><label>Causa</label><input type="text" id="cf-causa" placeholder="F010 - FALLA DE COMPONENTE" oninput="this.value = this.value.toUpperCase()"></div>
+        <div class="form-group full"><label>Reporte Atención en Sitio</label><textarea id="cf-sitio" placeholder="Procedimiento para técnico en sitio..." oninput="this.value = this.value.toUpperCase()"></textarea></div>
+        <div class="form-group full">
+          <label>Aplica para tipos de máquina</label>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:4px">
+            <div><label style="font-size:11px;margin-bottom:4px;display:block">T1</label><div class="select-wrap"><select id="cf-t1"><option value="APLICA">APLICA</option><option value="NO APLICA">NO APLICA</option></select></div></div>
+            <div><label style="font-size:11px;margin-bottom:4px;display:block">T2</label><div class="select-wrap"><select id="cf-t2"><option value="APLICA">APLICA</option><option value="NO APLICA">NO APLICA</option></select></div></div>
+            <div><label style="font-size:11px;margin-bottom:4px;display:block">T3</label><div class="select-wrap"><select id="cf-t3"><option value="NO APLICA">NO APLICA</option><option value="APLICA">APLICA</option></select></div></div>
+            <div><label style="font-size:11px;margin-bottom:4px;display:block">T4</label><div class="select-wrap"><select id="cf-t4"><option value="NO APLICA">NO APLICA</option><option value="APLICA">APLICA</option></select></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-cat')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveCat()">Guardar Falla</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <h4 id="confirm-title">¿Confirmar acción?</h4>
+    <p id="confirm-msg"></p>
+    <div class="confirm-actions">
+      <button class="btn btn-secondary" onclick="confirmResolve(false)">Cancelar</button>
+      <button class="btn btn-danger" onclick="confirmResolve(true)">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ===================== STATE =====================
+let maquinas = [];
+let catalogo = [];
+let editMaqIdx = -1, editCatIdx = -1;
+let selMaq = null, selCat = null;
+let confirmCb = null;
+
+// ===================== SUPABASE CONFIG =====================
+const SUPABASE_URL = localStorage.getItem('mra_sb_url') || 'https://iyqydehvlosewgblqpbk.supabase.co';
+const SUPABASE_KEY = localStorage.getItem('mra_sb_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5cXlkZWh2bG9zZXdnYmxxcGJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NjY0NjMsImV4cCI6MjA5NTE0MjQ2M30.82QCHmujmOY2ulod250841sfGAhmePfcv6M9JnFKKHQ';
+let supabaseClient = null;
+
+try {
+  if (SUPABASE_URL && SUPABASE_KEY) {
+    // persistSession:false evita el DataCloneError de postMessage en algunos navegadores
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+    });
+  }
+} catch(e) { console.error('Error inicializando Supabase:', e); }
+
+// ── Spinner de carga ──
+function showLoader(msg = 'Cargando datos desde la nube...') {
+  let el = document.getElementById('global-loader');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'global-loader';
+    el.style.cssText = `
+      position:fixed;inset:0;z-index:9999;
+      background:rgba(15,23,42,0.75);backdrop-filter:blur(6px);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+    `;
+    el.innerHTML = `
+      <div style="width:52px;height:52px;border:4px solid rgba(255,255,255,0.15);
+        border-top-color:#0284c7;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+      <div id="loader-msg" style="color:#e2e8f0;font-size:15px;font-weight:600;letter-spacing:-0.01em;">${msg}</div>
+      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    `;
+    document.body.appendChild(el);
+  } else {
+    document.getElementById('loader-msg').textContent = msg;
+  }
+}
+function hideLoader() {
+  const el = document.getElementById('global-loader');
+  if (el) el.remove();
+}
+function showDbError(errMsg) {
+  hideLoader();
+  let el = document.getElementById('db-error-overlay');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'db-error-overlay';
+    el.style.cssText = `
+      position:fixed;inset:0;z-index:9998;
+      background:rgba(15,23,42,0.85);backdrop-filter:blur(6px);
+      display:flex;align-items:center;justify-content:center;padding:24px;
+    `;
+    document.body.appendChild(el);
+  }
+  el.innerHTML = `
+    <div style="background:#fff;border-radius:16px;padding:40px 36px;max-width:460px;width:100%;
+      box-shadow:0 20px 40px rgba(0,0,0,0.25);text-align:center;">
+      <div style="width:56px;height:56px;background:#fef2f2;border-radius:50%;
+        display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:24px;">⚠️</div>
+      <h3 style="font-size:18px;font-weight:700;color:#0f172a;margin-bottom:8px;">Error de Conexión</h3>
+      <p style="font-size:13px;color:#64748b;line-height:1.6;margin-bottom:8px;">
+        No se pudo conectar a Supabase. Verifica tus credenciales en <strong>Configuración</strong>.
+      </p>
+      <p style="font-size:11px;color:#94a3b8;background:#f8fafc;padding:8px 12px;
+        border-radius:8px;margin-bottom:24px;font-family:monospace;word-break:break-all;">${errMsg}</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button onclick="document.getElementById('db-error-overlay').remove();showPage('configuracion',document.querySelector('[onclick*=configuracion]'));"
+          style="background:#0284c7;color:#fff;border:none;padding:10px 20px;border-radius:8px;
+          font-weight:600;cursor:pointer;font-size:13px;">⚙️ Ir a Configuración</button>
+        <button onclick="document.getElementById('db-error-overlay').remove();loadData();"
+          style="background:#f1f5f9;color:#334155;border:1px solid #e2e8f0;padding:10px 20px;
+          border-radius:8px;font-weight:600;cursor:pointer;font-size:13px;">↻ Reintentar</button>
+      </div>
+    </div>`;
+}
+
+// ── Carga de datos desde Supabase ──
+async function loadData() {
+  if (!supabaseClient) {
+    showDbError('No hay credenciales de Supabase configuradas.');
+    return;
+  }
+  showLoader('Cargando datos desde la nube...');
+  try {
+    const [{ data: mqData, error: mqErr }, { data: catData, error: catErr }] = await Promise.all([
+      supabaseClient.from('maquinas').select('*').order('nombre'),
+      supabaseClient.from('catalogo_fallas').select('*').order('falla'),
+    ]);
+    if (mqErr) throw mqErr;
+    if (catErr) throw catErr;
+    maquinas = mqData || [];
+    catalogo = catData || [];
+    hideLoader();
+    updateBadges();
+    if (document.getElementById('page-maquinas').classList.contains('active')) initMaqPage();
+    if (document.getElementById('page-catalogo').classList.contains('active')) initCatPage();
+    if (document.getElementById('page-resumen').classList.contains('active')) initResumenPage();
+    if (maquinas.length === 0 && catalogo.length === 0) {
+      toast('Base de datos vacía. Agrega datos desde las secciones correspondientes.', '');
+    }
+  } catch(e) {
+    console.error('Supabase load error:', e);
+    let msg = e?.message || String(e);
+    if(msg.includes('DataCloneError') || msg.includes('postMessage') || msg.includes('cloned')) {
+      // Retry once with a fresh client to bypass the DataCloneError bug
+      try {
+        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+          auth: { persistSession: false, autoRefreshToken: false }
+        });
+        const [{ data: mqData, error: mqErr }, { data: catData, error: catErr }] = await Promise.all([
+          supabaseClient.from('maquinas').select('*').order('nombre'),
+          supabaseClient.from('catalogo_fallas').select('*').order('falla'),
+        ]);
+        if(mqErr) throw mqErr;
+        if(catErr) throw catErr;
+        maquinas = mqData || [];
+        catalogo = catData || [];
+        hideLoader();
+        updateBadges();
+        if(document.getElementById('page-maquinas').classList.contains('active')) initMaqPage();
+        if(document.getElementById('page-catalogo').classList.contains('active')) initCatPage();
+        if(document.getElementById('page-resumen').classList.contains('active')) initResumenPage();
+        return;
+      } catch(e2) { msg = e2?.message || String(e2); }
+    }
+    showDbError(msg);
+  }
+}
+
+async function save(){
+  updateBadges();
+}
+
+function updateBadges(){
+  document.getElementById('badge-maq').textContent=maquinas.length;
+  document.getElementById('badge-cat').textContent=catalogo.length;
+}
+
+function saveConfig() {
+  const url = document.getElementById('cfg-sb-url').value.trim();
+  const key = document.getElementById('cfg-sb-key').value.trim();
+  localStorage.setItem('mra_sb_url', url);
+  localStorage.setItem('mra_sb_key', key);
+  toast('Configuración guardada. Recargando...', 'success');
+  setTimeout(() => location.reload(), 1000);
+}
+
+async function testSupabase() {
+  const url = document.getElementById('cfg-sb-url').value.trim();
+  const key = document.getElementById('cfg-sb-key').value.trim();
+  const st = document.getElementById('sb-status');
+  if(!url || !key) {
+    st.style.display='block';
+    st.style.color='var(--danger)';
+    st.textContent='Ingresa URL y Key';
+    return;
+  }
+  try {
+    const sb = supabase.createClient(url, key);
+    const { data, error } = await sb.from('maquinas').select('count', { count: 'exact', head: true });
+    st.style.display='block';
+    if(error) {
+      st.style.color='var(--danger)';
+      st.textContent='Error de conexión: ' + error.message;
+    } else {
+      st.style.color='var(--accent)';
+      st.textContent='¡Conexión exitosa a Supabase!';
+    }
+  } catch(e) {
+    st.style.display='block';
+    st.style.color='var(--danger)';
+    st.textContent='Error: ' + e.message;
+  }
+}
+
+
+// ===================== NAV =====================
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+  const titles={buscador:'Buscador de Fallas',maquinas:'Máquinas MRA',catalogo:'Catálogo de Fallas',resumen:'Resumen Base de Datos',convertidor:'Convertidor de Texto',configuracion:'Configuración'};
+  document.getElementById('topbar-title').textContent=titles[id]||'';
+  if(id==='configuracion') {
+    document.getElementById('cfg-sb-url').value = SUPABASE_URL || '';
+    document.getElementById('cfg-sb-key').value = SUPABASE_KEY || '';
+  }
+  if(id==='maquinas')initMaqPage();
+  if(id==='catalogo')initCatPage();
+  if(id==='resumen')initResumenPage();
+  closeAllAC();
+}
+
+// ===================== AUTOCOMPLETE ENGINE =====================
+function filterAC(inputId,listId,data,fields,cbName){
+  const q=document.getElementById(inputId).value.trim().toLowerCase();
+  renderAC(listId,data,fields,q,cbName);
+}
+function showAC(inputId,listId,data,fields,cbName){
+  const q=document.getElementById(inputId).value.trim().toLowerCase();
+  renderAC(listId,data,fields,q,cbName);
+}
+function renderAC(listId,data,fields,q,cbName){
+  const list=document.getElementById(listId);
+  let matches=q?data.filter(d=>fields.some(f=>(d[f]||'').toLowerCase().includes(q))):data;
+  matches=matches.slice(0,12);
+  if(!matches.length){
+    list.innerHTML='<div class="ac-empty">Sin resultados</div>';
+    list.classList.add('open');return;
+  }
+  if(listId==='ac-maquina'){
+    list.innerHTML=matches.map((m,i)=>`
+      <div class="ac-item" onmousedown="maqSelected(${maquinas.indexOf(m)})" tabindex="-1">
+        <span class="ac-main">${hl(m.nombre,q)}</span>
+        <span class="ac-sub">${m.estacion} · ${m.tipo.replace(' GENERACION','Gen.')} · Ext. ${m.ext}</span>
+      </div>`).join('');
+  } else {
+    const seen=new Set();
+    const unique=matches.filter(c=>{const k=c.falla;if(seen.has(k))return false;seen.add(k);return true;});
+    list.innerHTML=unique.map((c,i)=>`
+      <div class="ac-item" onmousedown="fallaSelected(${catalogo.indexOf(c)})" tabindex="-1">
+        <span class="ac-main">${hl(c.falla,q)}</span>
+        <span class="ac-sub">${c.componente} · Conj. ${c.conjunto}</span>
+      </div>`).join('');
+  }
+  list.classList.add('open');
+}
+function hl(text,q){
+  if(!q)return text;
+  const idx=text.toLowerCase().indexOf(q);
+  if(idx<0)return text;
+  return text.substring(0,idx)+'<strong style="color:var(--primary)">'+text.substring(idx,idx+q.length)+'</strong>'+text.substring(idx+q.length);
+}
+function closeAllAC(){
+  document.querySelectorAll('.autocomplete-list').forEach(l=>l.classList.remove('open'));
+}
+document.addEventListener('mousedown',e=>{
+  if(!e.target.closest('.autocomplete-wrap'))closeAllAC();
+});
+function acKeyDown(e,listId){
+  if(e.key==='Escape')closeAllAC();
+}
+
+function maqSelected(idx){
+  selMaq=maquinas[idx];
+  document.getElementById('bus-maquina').value=selMaq.nombre;
+  document.getElementById('maq-hint').textContent=`${selMaq.estacion} · ${selMaq.tipo} · Ext. ${selMaq.ext}`;
+  closeAllAC();
+}
+function fallaSelected(idx){
+  selCat=catalogo[idx];
+  document.getElementById('bus-falla').value=selCat.falla;
+  document.getElementById('falla-hint').textContent=`${selCat.componente} · Conjunto: ${selCat.conjunto}`;
+  closeAllAC();
+}
+
+// ===================== BUSCADOR =====================
+function buscar(){
+  const qMaq=document.getElementById('bus-maquina').value.trim().toLowerCase();
+  const qFal=document.getElementById('bus-falla').value.trim().toLowerCase();
+  if(!qMaq&&!qFal){toast('Ingresa al menos un criterio de búsqueda','error');return;}
+
+  // Resolve maq
+  let maq=selMaq;
+  if(!maq&&qMaq){maq=maquinas.find(m=>m.nombre.toLowerCase().includes(qMaq)||m.estacion.toLowerCase().includes(qMaq));}
+  // Resolve cat
+  let cat=selCat;
+  if(!cat&&qFal){cat=catalogo.find(c=>c.falla.toLowerCase().includes(qFal)||c.componente.toLowerCase().includes(qFal));}
+
+  if(!maq&&!cat){toast('No se encontraron resultados','error');return;}
+
+  const panel=document.getElementById('result-panel');
+  panel.classList.add('show');
+
+  // Header
+  document.getElementById('rp-title').textContent=maq?maq.nombre:'Falla seleccionada';
+  const badges=[];
+  if(maq)badges.push(`<span class="badge ${maq.tipo==='TERCERA GENERACION'?'badge-blue':'badge-amber'}">${maq.tipo.replace(' GENERACION','Gen.')}</span>`);
+  if(maq)badges.push(`<span class="badge badge-gray">${maq.tipomra}</span>`);
+  if(cat)badges.push(`<span class="badge badge-green">${cat.falla}</span>`);
+  document.getElementById('rp-badges').innerHTML=badges.join('');
+
+  // Maq grid
+  if(maq){
+    let receives = 'BILLETES Y MONEDAS', gives = 'NO DEVUELVE', sells = 'NO VENDE TARJETAS';
+    if(maq.tipomra === 'T1' && maq.tipo === 'SEGUNDA GENERACION') { gives = 'NO DEVUELVE'; sells = 'NO VENDE TARJETAS'; }
+    if(maq.tipomra === 'T2' && maq.tipo === 'SEGUNDA GENERACION') { gives = 'SI DEVUELVE'; sells = 'SI VENDE TARJETAS'; }
+    if(maq.tipomra === 'T3' && maq.tipo === 'TERCERA GENERACION') { gives = 'NO DEVUELVE'; sells = 'SI VENDE TARJETAS'; }
+    if(maq.tipomra === 'T2' && maq.tipo === 'TERCERA GENERACION') { gives = 'SI DEVUELVE'; sells = 'SI VENDE TARJETAS'; }
+    if(maq.tipomra === 'T4' && maq.tipo === 'TERCERA GENERACION') { receives = 'SOLO BILLETES'; gives = 'NO DEVUELVE'; sells = 'NO VENDE TARJETAS'; }
+    if(maq.tipomra === 'LSR' || maq.tipomra === 'PDV') { receives = 'N/A'; gives = 'N/A'; sells = 'N/A'; }
+
+    document.getElementById('rp-maq-grid').innerHTML=`
+      <div class="rp-cell">
+        <div class="rp-label">
+          <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+          Estación
+        </div>
+        <div class="rp-value">${maq.estacion}</div>
+      </div>
+      <div class="rp-cell">
+        <div class="rp-label">
+          <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+          Ubicación
+        </div>
+        <div class="rp-value">${maq.ubicacion}</div>
+      </div>
+      <div class="rp-cell">
+        <div class="rp-label">
+          <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
+          Línea
+        </div>
+        <div class="rp-value">${maq.linea}</div>
+      </div>
+      <div class="rp-cell">
+        <div class="rp-label">
+          <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9-9c1.657 0 3 4.03 3 9s-1.343 9-3 9m0-18c-1.657 0-3 4.03-3 9s1.343 9 3 9m-9-9a9 9 0 019-9" /></svg>
+          IP Máquina
+        </div>
+        <div class="rp-value mono">${maq.ip}</div>
+      </div>
+      <div class="rp-cell">
+        <div class="rp-label">
+          <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9-9c1.657 0 3 4.03 3 9s-1.343 9-3 9m0-18c-1.657 0-3 4.03-3 9s1.343 9 3 9m-9-9a9 9 0 019-9" /></svg>
+          IP NVR
+        </div>
+        <div class="rp-value mono">${maq.ipnvr}</div>
+      </div>
+      <div class="rp-cell">
+        <div class="rp-label">
+          <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+          Extensión
+        </div>
+        <div class="rp-value">${maq.ext}</div>
+      </div>
+      <div class="rp-cell">
+        <div class="rp-label">
+          <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+          Técnico Base
+        </div>
+        <div class="rp-value">${maq.tecnico}</div>
+      </div>
+      <div class="rp-cell" style="grid-column:1/-1; background:var(--primary-light); border-radius:var(--radius); padding:16px;">
+        <div style="font-size:10px;font-weight:700;color:var(--primary-dark);text-transform:uppercase;margin-bottom:8px">Transacciones Permitidas (${maq.tipomra})</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <span class="badge ${receives.includes('N/A')?'badge-gray':'badge-green'}">${receives}</span>
+          <span class="badge ${gives.includes('NO')||gives.includes('N/A')?'badge-red':'badge-green'}">${gives}</span>
+          <span class="badge ${sells.includes('NO')||sells.includes('N/A')?'badge-red':'badge-green'}">${sells}</span>
+        </div>
+      </div>`;
+  } else {
+    document.getElementById('rp-maq-grid').innerHTML='<div class="rp-cell" style="grid-column:1/-1;color:var(--text-muted);font-size:12px;padding:16px 24px">No se seleccionó máquina</div>';
+  }
+
+  // Falla grid
+  if(cat){
+    document.getElementById('rp-falla-grid').innerHTML=`
+      <div class="rp-cell">
+        <div class="rp-label">
+          <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+          Falla
+        </div>
+        <div class="rp-value accent">${cat.falla}</div>
+      </div>
+      <div class="rp-cell">
+        <div class="rp-label">
+          <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+          Conjunto SAP
+        </div>
+        <div class="rp-value mono accent" style="font-size:16px;font-weight:700">${cat.conjunto}</div>
+      </div>
+      <div class="rp-cell">
+        <div class="rp-label">
+          <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" /></svg>
+          Componente
+        </div>
+        <div class="rp-value">${cat.componente}</div>
+      </div>
+      <div class="rp-cell">
+        <div class="rp-label">
+          <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+          Síntoma
+        </div>
+        <div class="rp-value mono">${cat.sintoma}</div>
+      </div>
+      <div class="rp-cell">
+        <div class="rp-label">
+          <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+          Texto Síntoma
+        </div>
+        <div class="rp-value">${cat.texsintoma}</div>
+      </div>
+      <div class="rp-cell">
+        <div class="rp-label">
+          <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          Causa
+        </div>
+        <div class="rp-value">${cat.causa}</div>
+      </div>`;
+    document.getElementById('rp-datossap').textContent=cat.remota||'—';
+    document.getElementById('rp-procedimiento').textContent=cat.solucion||'—';
+    document.getElementById('rp-sitio').textContent=cat.sitio||'—';
+    
+    document.getElementById('rp-sap-section').style.display = 'block';
+    document.getElementById('rp-proc-section').style.display = 'block';
+    document.getElementById('rp-sitio-section').style.display = 'block';
+  } else {
+    document.getElementById('rp-falla-grid').innerHTML='<div class="rp-cell" style="grid-column:1/-1;color:var(--text-muted);font-size:12px;padding:16px 24px">No se seleccionó falla</div>';
+    
+    document.getElementById('rp-sap-section').style.display = 'none';
+    document.getElementById('rp-proc-section').style.display = 'none';
+    document.getElementById('rp-sitio-section').style.display = 'none';
+    
+    // Add a placeholder section if no falla is selected
+    if(maq) {
+      document.getElementById('rp-falla-grid').insertAdjacentHTML('beforeend', '<div style="grid-column:1/-1;padding:16px 24px"><div class="badge badge-amber" style="font-size:12px;padding:8px 12px;display:flex;align-items:center;gap:8px"><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg> <strong>Aviso:</strong> Seleccione obligatoriamente una Falla para ver los Datos SAP (IW21) y el Procedimiento.</div></div>');
+    }
+  }
+
+  panel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function limpiarBusqueda(){
+  selMaq=null;selCat=null;
+  document.getElementById('bus-maquina').value='';
+  document.getElementById('bus-falla').value='';
+  document.getElementById('maq-hint').textContent='';
+  document.getElementById('falla-hint').textContent='';
+  document.getElementById('result-panel').classList.remove('show');
+}
+
+function copySAP(){
+  const t=document.getElementById('rp-datossap').textContent;
+  navigator.clipboard.writeText(t).then(()=>toast('✓ Datos SAP copiados al portapapeles','success'));
+}
+function copyTodo(){
+  const maq=selMaq,cat=selCat;
+  let txt='';
+  if(maq)txt+=`MÁQUINA: ${maq.nombre}\nESTACIÓN: ${maq.estacion}\nUBICACIÓN: ${maq.ubicacion}\nLÍNEA: ${maq.linea}\nEXTENSIÓN: ${maq.ext}\nIP: ${maq.ip}\nIP NVR: ${maq.ipnvr}\nTÉCNICO: ${maq.tecnico}\n\n`;
+  if(cat)txt+=`FALLA: ${cat.falla}\nCONJUNTO SAP: ${cat.conjunto}\nCOMPONENTE: ${cat.componente}\nSÍNTOMA: ${cat.sintoma}\nCAUSA: ${cat.causa}\n\nDATOS SAP (IW21):\n${cat.remota}\n\nPROCEDIMIENTO:\n${cat.solucion}`;
+  navigator.clipboard.writeText(txt.trim()).then(()=>toast('✓ Informe completo copiado','success'));
+}
+
+// ===================== MÁQUINAS =====================
+function initMaqPage(){
+  const gen2=maquinas.filter(m=>m.tipo==='SEGUNDA GENERACION').length;
+  const gen3=maquinas.filter(m=>m.tipo==='TERCERA GENERACION').length;
+  const ests=new Set(maquinas.map(m=>m.estacion)).size;
+  const lineas=new Set(maquinas.map(m=>m.linea)).size;
+  document.getElementById('maq-stats').innerHTML=`
+    <div class="stat"><div class="stat-icon blue">🖥️</div><div><div class="stat-num">${maquinas.length}</div><div class="stat-label">Total MRAs</div></div></div>
+    <div class="stat"><div class="stat-icon amber">📟</div><div><div class="stat-num">${gen2}</div><div class="stat-label">2da Generación</div></div></div>
+    <div class="stat"><div class="stat-icon green">💻</div><div><div class="stat-num">${gen3}</div><div class="stat-label">3ra Generación</div></div></div>
+    <div class="stat"><div class="stat-icon violet">🏢</div><div><div class="stat-num">${ests}</div><div class="stat-label">Estaciones</div></div></div>`;
+  // Populate base filter
+  const bases=['',...new Set(maquinas.map(m=>m.tecnico)).values()].sort();
+  const sel=document.getElementById('maq-fbase');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">Todas las bases</option>'+
+    bases.filter(b=>b).map(b=>`<option value="${b}">${b}</option>`).join('');
+  sel.value=cur;
+  renderMaqTable();
+}
+function renderMaqTable(){
+  const q=document.getElementById('maq-q').value.toLowerCase();
+  const gen=document.getElementById('maq-fgen').value;
+  const base=document.getElementById('maq-fbase').value;
+  const filtered=maquinas.filter((m,i)=>{
+    if(q&&![m.nombre,m.estacion,m.ip,m.ext,m.linea].some(v=>v.toLowerCase().includes(q)))return false;
+    if(gen&&m.tipo!==gen)return false;
+    if(base&&m.tecnico!==base)return false;
+    return true;
+  });
+  document.getElementById('maq-count-label').textContent=`${filtered.length} de ${maquinas.length} registros`;
+  const tbody=document.getElementById('maq-tbody');
+  if(!filtered.length){tbody.innerHTML=`<tr><td colspan="11"><div class="empty-state"><div class="es-icon"><svg class="icon icon-lg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg></div><p>No se encontraron máquinas</p></div></td></tr>`;return;}
+  tbody.innerHTML=filtered.map(m=>{
+    const idx=maquinas.indexOf(m);
+    const gb=m.tipo==='TERCERA GENERACION'?'badge-blue':'badge-amber';
+    return`<tr>
+      <td><strong>${m.nombre}</strong></td>
+      <td><span class="badge ${gb}">${m.tipo.replace(' GENERACION','Gen.')}</span></td>
+      <td><span class="badge badge-gray">${m.tipomra}</span></td>
+      <td class="mono">${m.ext}</td>
+      <td class="mono">${m.ip}</td>
+      <td class="mono">${m.ipnvr}</td>
+      <td>${m.estacion}</td>
+      <td>${m.ubicacion}</td>
+      <td>${m.linea}</td>
+      <td><span class="badge badge-green">${m.tecnico}</span></td>
+      <td>
+        <button class="btn btn-secondary btn-sm btn-icon" onclick="openMaqModal(${idx})" title="Editar"><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteMaq(${idx})" title="Eliminar"><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+      </td>
+    </tr>`;
+  }).join('');}
+function openMaqModal(idx=-1){
+  editMaqIdx=idx;
+  document.getElementById('modal-maq-title').textContent=idx>=0?'Editar Máquina':'Nueva Máquina';
+  const fields=['nombre','tipo','tipomra','ext','ip','ipnvr','estacion','ubicacion','linea','tecnico'];
+  if(idx>=0){const m=maquinas[idx];fields.forEach(f=>document.getElementById('mf-'+f).value=m[f]||'');}
+  else fields.forEach(f=>{if(f!=='tipo'&&f!=='tipomra')document.getElementById('mf-'+f).value='';});
+  document.getElementById('modal-maq').classList.add('open');
+}
+async function saveMaq(){
+  if(!supabaseClient){ toast('⚠️ Sin conexión a la base de datos. Configura Supabase primero.','error'); return; }
+  const nombre=document.getElementById('mf-nombre').value.trim();
+  if(!nombre){toast('El nombre de la máquina es requerido','error');return;}
+  const m={
+    nombre,tipo:document.getElementById('mf-tipo').value,tipomra:document.getElementById('mf-tipomra').value,
+    ext:document.getElementById('mf-ext').value,ip:document.getElementById('mf-ip').value,
+    ipnvr:document.getElementById('mf-ipnvr').value,estacion:document.getElementById('mf-estacion').value,
+    ubicacion:document.getElementById('mf-ubicacion').value,linea:document.getElementById('mf-linea').value,
+    tecnico:document.getElementById('mf-tecnico').value
+  };
+  let isEdit = editMaqIdx>=0;
+  if(isEdit && maquinas[editMaqIdx].id) m.id = maquinas[editMaqIdx].id;
+  document.getElementById('modal-maq-title').textContent = 'Guardando en la BD...';
+  try {
+    if(m.id) {
+      const { error: upErr } = await supabaseClient.from('maquinas').update(m).eq('id', m.id);
+      if(upErr) throw upErr;
+      maquinas[editMaqIdx]=m;
+    } else {
+      const { data, error: insErr } = await supabaseClient.from('maquinas').insert(m).select();
+      if(insErr) throw insErr;
+      if(data && data.length) m.id = data[0].id;
+      if(isEdit) maquinas[editMaqIdx]=m; else maquinas.push(m);
+    }
+    save();closeModal('modal-maq');initMaqPage();
+    toast(isEdit?'✓ Máquina actualizada en la BD':'✓ Máquina agregada a la BD','success');
+  } catch(e) {
+    console.error(e);
+    document.getElementById('modal-maq-title').textContent = isEdit?'Editar Máquina':'Nueva Máquina';
+    toast('❌ Error al guardar en la BD: '+e.message,'error');
+  }
+}
+function deleteMaq(idx){
+  if(!supabaseClient){ toast('⚠️ Sin conexión a la base de datos.','error'); return; }
+  confirm2(`¿Eliminar máquina "${maquinas[idx].nombre}"?`,'Esta acción eliminará el registro de la base de datos y no se puede deshacer.',async ()=>{
+    if(!maquinas[idx].id){ toast('Esta máquina no tiene ID en la BD','error'); return; }
+    try {
+      await supabaseClient.from('maquinas').delete().eq('id', maquinas[idx].id);
+      maquinas.splice(idx,1);save();initMaqPage();toast('✓ Máquina eliminada de la BD','success');
+    } catch(e){ toast('❌ Error borrando en la BD: '+e.message,'error'); }
+  });
+}
+
+// ===================== CATÁLOGO =====================
+function initCatPage(){
+  const gen2=catalogo.filter(c=>c.tipo==='SEGUNDA GENERACION').length;
+  const gen3=catalogo.filter(c=>c.tipo==='TERCERA GENERACION').length;
+  const tipos=new Set(catalogo.map(c=>c.falla)).size;
+  document.getElementById('cat-stats').innerHTML=`
+    <div class="stat"><div class="stat-icon blue"><svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg></div><div><div class="stat-num">${catalogo.length}</div><div class="stat-label">Total Entradas</div></div></div>
+    <div class="stat"><div class="stat-icon amber"><svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="5" y="3" width="14" height="18" rx="2" stroke-width="2" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 17h.01M9 6h6M9 10h6" /></svg></div><div><div class="stat-num">${gen2}</div><div class="stat-label">2da Generación</div></div></div>
+    <div class="stat"><div class="stat-icon green"><svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="4" width="18" height="12" rx="2" stroke-width="2" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 17h20M12 17v3M10 20h4" /></svg></div><div><div class="stat-num">${gen3}</div><div class="stat-label">3ra Generación</div></div></div>
+    <div class="stat"><div class="stat-icon violet"><svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><div><div class="stat-num">${tipos}</div><div class="stat-label">Tipos de Falla</div></div></div>`;
+  renderCatTable();
+}
+function renderCatTable(){
+  const q=document.getElementById('cat-q').value.toLowerCase();
+  const gen=document.getElementById('cat-fgen').value;
+  const filtered=catalogo.filter((c,i)=>{
+    if(q&&![c.falla,c.componente,c.conjunto,c.causa].some(v=>(v||'').toLowerCase().includes(q)))return false;
+    if(gen&&c.tipo!==gen)return false;
+    return true;
+  });
+  document.getElementById('cat-count-label').textContent=`${filtered.length} de ${catalogo.length} registros`;
+  const tbody=document.getElementById('cat-tbody');
+  if(!filtered.length){tbody.innerHTML=`<tr><td colspan="11"><div class="empty-state"><div class="es-icon"><svg class="icon icon-lg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg></div><p>No se encontraron fallas</p></div></td></tr>`;return;}
+  const apBadge=v=>v==='APLICA'?'<span class="badge badge-green"><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg></span>':'<span class="badge badge-red"><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" /></svg></span>';
+  tbody.innerHTML=filtered.map(c=>{
+    const idx=catalogo.indexOf(c);
+    const gb=c.tipo==='TERCERA GENERACION'?'badge-blue':'badge-amber';
+    return`<tr>
+      <td><span class="badge ${gb}">${c.tipo.replace(' GENERACION','Gen.')}</span></td>
+      <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${c.componente}">${c.componente}</td>
+      <td class="mono">${c.conjunto}</td>
+      <td><strong>${c.falla}</strong></td>
+      <td class="mono" style="font-size:11px">${c.sintoma}</td>
+      <td style="font-size:12px">${c.causa}</td>
+      <td>${apBadge(c.t1)}</td><td>${apBadge(c.t2)}</td><td>${apBadge(c.t3)}</td><td>${apBadge(c.t4)}</td>
+      <td>
+        <button class="btn btn-secondary btn-sm btn-icon" onclick="openCatModal(${idx})" title="Editar"><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="deleteCat(${idx})" title="Eliminar"><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+function openCatModal(idx=-1){
+  editCatIdx=idx;
+  document.getElementById('modal-cat-title').textContent=idx>=0?'Editar Falla':'Nueva Falla';
+  const fields=['tipo','componente','conjunto','falla','remota','solucion','sintoma','texsintoma','causa','sitio','t1','t2','t3','t4'];
+  if(idx>=0){const c=catalogo[idx];fields.forEach(f=>document.getElementById('cf-'+f).value=c[f]||'');}
+  else ['componente','conjunto','falla','remota','solucion','sintoma','texsintoma','causa','sitio'].forEach(f=>document.getElementById('cf-'+f).value='');
+  document.getElementById('modal-cat').classList.add('open');
+}
+async function saveCat(){
+  if(!supabaseClient){ toast('⚠️ Sin conexión a la base de datos. Configura Supabase primero.','error'); return; }
+  const falla=document.getElementById('cf-falla').value.trim();
+  if(!falla){toast('La descripción de la falla es requerida','error');return;}
+  const c={
+    tipo:document.getElementById('cf-tipo').value,
+    componente:document.getElementById('cf-componente').value,
+    conjunto:document.getElementById('cf-conjunto').value,
+    falla,remota:document.getElementById('cf-remota').value,
+    solucion:document.getElementById('cf-solucion').value,
+    sintoma:document.getElementById('cf-sintoma').value,
+    texsintoma:document.getElementById('cf-texsintoma').value,
+    causa:document.getElementById('cf-causa').value,
+    sitio:document.getElementById('cf-sitio').value,
+    t1:document.getElementById('cf-t1').value,t2:document.getElementById('cf-t2').value,
+    t3:document.getElementById('cf-t3').value,t4:document.getElementById('cf-t4').value,
+  };
+  let isEdit = editCatIdx>=0;
+  if(isEdit && catalogo[editCatIdx].id) c.id = catalogo[editCatIdx].id;
+  document.getElementById('modal-cat-title').textContent = 'Guardando en la BD...';
+  try {
+    if(c.id) {
+      const { error: upErr } = await supabaseClient.from('catalogo_fallas').update(c).eq('id', c.id);
+      if(upErr) throw upErr;
+      catalogo[editCatIdx]=c;
+    } else {
+      const { data, error: insErr } = await supabaseClient.from('catalogo_fallas').insert(c).select();
+      if(insErr) throw insErr;
+      if(data && data.length) c.id = data[0].id;
+      if(isEdit) catalogo[editCatIdx]=c; else catalogo.push(c);
+    }
+    save();closeModal('modal-cat');initCatPage();
+    toast(isEdit?'✓ Falla actualizada en la BD':'✓ Falla agregada a la BD','success');
+  } catch(e) {
+    console.error(e);
+    document.getElementById('modal-cat-title').textContent = isEdit?'Editar Falla':'Nueva Falla';
+    toast('❌ Error al guardar en la BD: '+e.message,'error');
+  }
+}
+function deleteCat(idx){
+  if(!supabaseClient){ toast('⚠️ Sin conexión a la base de datos.','error'); return; }
+  confirm2(`¿Eliminar falla "${catalogo[idx].falla}"?`,'Esta acción eliminará el registro de la base de datos y no se puede deshacer.',async ()=>{
+    if(!catalogo[idx].id){ toast('Esta falla no tiene ID en la BD','error'); return; }
+    try {
+      await supabaseClient.from('catalogo_fallas').delete().eq('id', catalogo[idx].id);
+      catalogo.splice(idx,1);save();initCatPage();toast('✓ Falla eliminada de la BD','success');
+    } catch(e){ toast('❌ Error borrando en la BD: '+e.message,'error'); }
+  });
+}
+
+// ===================== MODALS =====================
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('mousedown',e=>{if(e.target===m)closeModal(m.id);}));
+
+// ===================== CONFIRM =====================
+function confirm2(title,msg,cb){
+  confirmCb=cb;
+  document.getElementById('confirm-title').textContent=title;
+  document.getElementById('confirm-msg').textContent=msg;
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+function confirmResolve(yes){
+  document.getElementById('confirm-overlay').classList.remove('open');
+  if(yes&&confirmCb)confirmCb();
+  confirmCb=null;
+}
+
+// ===================== TOAST =====================
+let toastT;
+function toast(msg,type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.className='show'+(type?' '+type:'');
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>{el.className='';},2800);
+}
+
+// ===================== RESUMEN BD =====================
+function initResumenPage(){
+  document.getElementById('res-total-maq').textContent = maquinas.length;
+  document.getElementById('res-total-cat').textContent = catalogo.length;
+  document.getElementById('res-total-est').textContent = new Set(maquinas.map(m=>m.estacion)).size;
+  document.getElementById('res-total-tipos').textContent = new Set(catalogo.map(c=>c.falla)).size;
+  renderResMaqTable();
+  renderResCatTable();
+}
+function showResTab(tab, btn){
+  document.getElementById('res-tab-maquinas').style.display = tab==='maquinas' ? '' : 'none';
+  document.getElementById('res-tab-fallas').style.display = tab==='fallas' ? '' : 'none';
+  document.querySelectorAll('#res-tabs .tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function renderResMaqTable(){
+  const q = (document.getElementById('res-maq-q').value||'').toLowerCase();
+  const gen = document.getElementById('res-maq-fgen').value;
+  const filtered = maquinas.filter(m=>{
+    if(q && ![m.nombre,m.estacion,m.ip,m.ext,m.linea,m.tecnico].some(v=>(v||'').toLowerCase().includes(q))) return false;
+    if(gen && m.tipo!==gen) return false;
+    return true;
+  });
+  document.getElementById('res-maq-count').textContent = `${filtered.length} de ${maquinas.length} registros`;
+  const tbody = document.getElementById('res-maq-tbody');
+  if(!filtered.length){ tbody.innerHTML=`<tr><td colspan="11"><div class="empty-state"><div class="es-icon"><svg class="icon icon-lg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg></div><p>No se encontraron máquinas</p></div></td></tr>`; return; }
+  tbody.innerHTML = filtered.map((m,i)=>{
+    const gb = m.tipo==='TERCERA GENERACION'?'badge-blue':'badge-amber';
+    return`<tr>
+      <td style="color:var(--text-muted);font-size:12px">${i+1}</td>
+      <td><strong>${m.nombre}</strong></td>
+      <td><span class="badge ${gb}">${m.tipo.replace(' GENERACION','Gen.')}</span></td>
+      <td><span class="badge badge-gray">${m.tipomra}</span></td>
+      <td class="mono">${m.ext}</td>
+      <td class="mono">${m.ip}</td>
+      <td class="mono">${m.ipnvr}</td>
+      <td>${m.estacion}</td>
+      <td>${m.ubicacion}</td>
+      <td>${m.linea}</td>
+      <td><span class="badge badge-green">${m.tecnico}</span></td>
+    </tr>`;
+  }).join('');
+}
+function renderResCatTable(){
+  const q = (document.getElementById('res-cat-q').value||'').toLowerCase();
+  const gen = document.getElementById('res-cat-fgen').value;
+  const apBadge = v=>v==='APLICA'?'<span class="badge badge-green"><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg></span>':'<span class="badge badge-red"><svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" /></svg></span>';
+  const filtered = catalogo.filter(c=>{
+    if(q && ![c.falla,c.componente,c.conjunto,c.causa].some(v=>(v||'').toLowerCase().includes(q))) return false;
+    if(gen && c.tipo!==gen) return false;
+    return true;
+  });
+  document.getElementById('res-cat-count').textContent = `${filtered.length} de ${catalogo.length} registros`;
+  const tbody = document.getElementById('res-cat-tbody');
+  if(!filtered.length){ tbody.innerHTML=`<tr><td colspan="11"><div class="empty-state"><p>No se encontraron fallas</p></div></td></tr>`; return; }
+  tbody.innerHTML = filtered.map((c,i)=>{
+    const gb = c.tipo==='TERCERA GENERACION'?'badge-blue':'badge-amber';
+    return`<tr>
+      <td style="color:var(--text-muted);font-size:12px">${i+1}</td>
+      <td><span class="badge ${gb}">${c.tipo.replace(' GENERACION','Gen.')}</span></td>
+      <td style="max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${c.componente}">${c.componente}</td>
+      <td class="mono">${c.conjunto}</td>
+      <td><strong>${c.falla}</strong></td>
+      <td class="mono" style="font-size:11px">${c.sintoma}</td>
+      <td style="font-size:12px;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${c.causa}">${c.causa}</td>
+      <td>${apBadge(c.t1)}</td><td>${apBadge(c.t2)}</td><td>${apBadge(c.t3)}</td><td>${apBadge(c.t4)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ===================== CONVERTIDOR =====================
+let convMode = 'mayus';
+function setConvMode(mode, btn){
+  convMode = mode;
+  document.querySelectorAll('.conv-mode-btn').forEach(b=>{ b.classList.remove('btn-primary'); b.classList.add('btn-secondary'); });
+  btn.classList.remove('btn-secondary'); btn.classList.add('btn-primary');
+  convertirTexto();
+}
+function convertirTexto(){
+  const txt = document.getElementById('conv-input').value;
+  let result = txt;
+  if(convMode==='mayus') result = txt.toUpperCase();
+  else if(convMode==='minus') result = txt.toLowerCase();
+  else if(convMode==='titulo') result = txt.replace(/\w\S*/g, w=>w.charAt(0).toUpperCase()+w.substr(1).toLowerCase());
+  else if(convMode==='oracion') result = txt.toLowerCase().replace(/(^\s*\w|[.!?]\s*\w)/g, c=>c.toUpperCase());
+  else if(convMode==='alternado') result = txt.split('').map((c,i)=>i%2===0?c.toLowerCase():c.toUpperCase()).join('');
+  const out = document.getElementById('conv-output');
+  out.textContent = result || '—';
+  document.getElementById('conv-chars').textContent = txt.length + ' caracteres';
+}
+function copiarConvertido(){
+  const txt = document.getElementById('conv-output').textContent;
+  if(txt==='—') return;
+  navigator.clipboard.writeText(txt).then(()=>toast('✓ Texto convertido copiado','success'));
+}
+function pasarAEntrada(){
+  const txt = document.getElementById('conv-output').textContent;
+  if(txt==='—') return;
+  document.getElementById('conv-input').value = txt;
+  convertirTexto();
+  toast('✓ Resultado pasado a entrada','success');
+}
+
+// ===================== DARK MODE =====================
+function toggleDark(){
+  const isDark = document.body.classList.toggle('dark');
+  localStorage.setItem('mra_dark', isDark?'1':'0');
+  updateDarkUI(isDark);
+}
+function updateDarkUI(isDark){
+  const track = document.getElementById('toggle-track');
+  const label = document.getElementById('dark-label');
+  const icon  = document.getElementById('dark-icon');
+  if(isDark){
+    track.classList.add('on');
+    label.textContent = 'Claro';
+    icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+  } else {
+    track.classList.remove('on');
+    label.textContent = 'Oscuro';
+    icon.innerHTML = '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>';
+  }
+}
+
+// ===================== INIT =====================
+document.getElementById('topbar-date').textContent=new Date().toLocaleDateString('es-CO',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+// Restore dark mode preference
+if(localStorage.getItem('mra_dark')==='1'){
+  document.body.classList.add('dark');
+  updateDarkUI(true);
+}
+loadData();
+</script>
+</body>
+</html>
